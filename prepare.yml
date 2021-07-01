@@ -56,3 +56,6 @@
         daemon_reload: True
         enabled: yes
         name: rebloop.service
+
+# bootstrap cluster:
+#  cephadm bootstrap --mon-ip 10.0.0.2 --cluster-network 10.0.0.0/24 --skip-mon-irgendwas
