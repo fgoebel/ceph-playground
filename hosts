@@ -1,0 +1,4 @@
+[all]
+ceph00 ansible_host=135.181.197.2
+ceph01 ansible_host=135.181.198.24
+ceph02 ansible_host=135.181.197.252
