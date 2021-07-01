@@ -1,0 +1,6 @@
+# Test Ceph on Hetzner .. fail...
+
+Ich wollte einfach mal ausprobieren, ob man nicht einen Ceph-Cluster zu testzwecken mal auf Hetzner vms ausrollen kann...
+das hier ist die Sammlung an Dingen die ich dafür tat..
+
+leider scheint es nicht der Fall zu sei dass es geht..
