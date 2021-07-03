@@ -5,6 +5,7 @@
 
 - name: prepare hosts for ceph test deployment
   hosts: all
+  become: true
   vars:
     upgrade: True
   tasks:
@@ -17,45 +18,6 @@
     - name: import role for podman
       import_role:
         name: podman
-
-    - name: create /ceph folder for storage of the osd image files
-      file:
-        state: directory
-        path: /ceph
-
-    - name: create empty img files (if not present)
-      command:
-        cmd: fallocate -l 40G {{ item }}
-        creates: "{{ item }}"
-      loop:
-        - /ceph/osd1.img
-        - /ceph/osd2.img
-      
-    - name: Create script to add loop devices on startup
-      copy:
-        dest: /usr/bin/rebloop.sh
-        content: |
-          #!/bin/bash
-          losetup -l -P /dev/loop1 /ceph/osd1.img
-          losetup -l -P /dev/loop2 /ceph/osd2.img
-    
-    - name: add service to add loop devices on startup
-      copy:
-        dest: /etc/systemd/system/rebloop.service
-        content: |
-          [Unit]
-          Description=Reattach loop device after reboot
-          [Service]
-          Type=simple
-          ExecStart=/bin/bash /usr/bin/rebloop.sh
-          [Install]
-          WantedBy=multi-user.target
-    
-    - name: enable service
-      systemd:
-        daemon_reload: True
-        enabled: yes
-        name: rebloop.service
 
 # bootstrap cluster:
 #  cephadm bootstrap --mon-ip 10.0.0.2 --cluster-network 10.0.0.0/24 --skip-mon-irgendwas

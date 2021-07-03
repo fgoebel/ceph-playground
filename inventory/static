@@ -1,0 +1,7 @@
+[ceph_nodes]
+ceph0
+ceph1
+ceph2
+
+[ceph_bootstrap]
+ceph0
