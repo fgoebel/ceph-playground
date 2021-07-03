@@ -1,0 +1,22 @@
+---
+
+# prepare
+- name: import preparation playbook
+  import_playbook: prepare.yml
+
+# bootstrap
+## (includes ceph-keys)
+- name: import playbook to bootstrap cluster
+  import_playbook: bootstrap.yml
+
+# rados-gw object storage
+- name: import rados-gw
+  import_playbook: rados-gw.yml
+
+# create cephfs bar
+- name: import cephfs
+  import_playbook: cephfs.yml
+
+# ceph-iscsi
+- name: import playbook for ceph iscsi
+  import_playbook: ceph-iscsi.yml

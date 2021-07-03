@@ -1,0 +1,92 @@
+---
+
+- name: Fetch required configuration and keys
+  hosts: ceph_bootstrap # foreman_ceph_poc
+  remote_user: adu
+  become_method: sudo
+  become: true
+  tasks:
+
+    - name: Create cephfs "bar"
+      vars:
+        file: /etc/ceph/ansible-cephfs-bar-created
+        filesystem: bar
+      shell:
+        cmd: ceph fs volume create {{ filesystem }} && touch {{ file }}
+        creates: "{{ file }}"
+      register: cephfs_fs_create
+
+    - name: wait for 30 sec to create the filesystem
+      pause:
+        seconds: 30
+      when: cephfs_fs_create is changed
+
+    - name: create minimal ceph config
+      command: ceph config generate-minimal-conf
+      register: ceph_config
+
+    - debug:
+        var: ceph_config.stdout
+
+    - name: save config for later use
+      copy:
+        content: |
+           {{ ceph_config.stdout }}
+
+        dest: /root/ceph-minimal.conf
+
+    - name: create user "{{ username }}" for cephfs "{{ filesystem }}" with full read/write access
+      vars:
+        filesystem: bar
+        username: bar
+        file: /root/ceph.client.{{ username }}.keyring
+      shell:
+        cmd: ceph fs authorize {{ filesystem }} client.{{ username }} / rw > {{ file }}
+        creates: "{{ file }}"
+
+    - name: fetch ceph-minimal.conf
+      fetch:
+        src: "{{ item }}"
+        dest: fetch/
+        flat: True # no subfolder per hostname please
+      loop:
+        - /root/ceph-minimal.conf
+        - /root/ceph.client.bar.keyring
+        - /etc/ceph/ceph.client.admin.keyring
+        - /etc/ceph/ceph.conf
+
+- name: configure cephfs on client nodes
+  hosts: cephfs_clients
+  remote_user: adu
+  become_method: sudo
+  become: true
+  tasks:
+    - name: create /etc/ceph
+      file:
+        path: /etc/ceph
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: "Deploy ceph-minimal.conf on clients"
+      copy:
+        src: fetch/ceph-minimal.conf
+        dest: /etc/ceph/ceph.conf
+        owner: root
+        group: root
+        mode: 0600
+
+    - name: "Deploy keyring on clients"
+      copy:
+        src: fetch/ceph.client.{{ username }}.keyring
+        dest: /etc/ceph/
+        owner: root
+        group: root
+        mode: 0600
+      vars:
+        username: bar
+
+    - name: debugging
+      debug:
+        msg: "{{ lookup('file','fetch/ceph.client.bar.keyring') | cephfs_extract_secret }}"

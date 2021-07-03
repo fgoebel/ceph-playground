@@ -1,0 +1,55 @@
+- name: bootstrap first node
+  hosts: ceph_bootstrap
+  remote_user: adu
+  become_method: sudo
+  become: true
+  tasks:
+    - name: Run bootstrap command on one node
+      command:
+        cmd: >
+          cephadm bootstrap
+          --mon-ip 192.168.178.210
+          --cluster-network 192.168.40.0/24
+          --initial-dashboard-password test1234
+          --initial-dashboard-user admin
+          --dashboard-password-noupdate
+        creates: /etc/ceph/ceph.conf
+      register: bootstrap
+
+      # add _admin label to bootstrap node
+
+    - name: show bootstrap command
+      debug:
+        var: bootstrap
+
+- name: deploy ssh-keys to other hosts
+  import_playbook: ceph-keys.yml
+
+- name: add other hosts to cluster
+  hosts: ceph_bootstrap
+  remote_user: adu
+  become_method: sudo
+  become: true
+  tasks:
+    - name: add other hosts to cluster
+      command:
+        cmd: "{{ item }}"
+        creates: /etc/ceph/other-hosts
+      loop:
+        - ceph orch host add ceph1 192.168.178.211 _admin
+        - ceph orch host add ceph2 192.168.178.212 _admin
+
+    - name: create other-host -status file
+      file:
+        path: /etc/ceph/other-hosts
+        state: touch
+
+    - name: add all available storage to ceph
+      command:
+        cmd: ceph orch apply osd --all-available-devices
+        creates: /etc/ceph/apply-osd
+
+    - name: create other-host -status file
+      file:
+        path: /etc/ceph/apply-osd
+        state: touch

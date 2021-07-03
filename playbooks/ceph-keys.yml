@@ -1,0 +1,41 @@
+---
+# leave this for ssh-keys only ;-D
+# the other files are not "ready" yet
+
+- name: fetch ssh-key for ceph from first node
+  hosts: ceph_bootstrap # foreman_ceph_poc
+  remote_user: adu
+  become_method: sudo
+  become: true
+  tasks:
+    - name: fetch certs to bastion
+      fetch:
+        dest: "fetch/"
+        src: "/etc/ceph/{{ item }}"
+        flat: yes
+      loop:
+        - ceph.pub
+        # - ceph.conf ## okay.. no this is to early!! it is before all hosts are ready!!
+        #- ceph.client.admin.keyring # so lets just a leave this playbook for ssh keys
+
+- name: deploy ceph.key to root on all nodes
+  hosts: ceph_nodes
+  remote_user: adu
+  become: yes
+  tasks:
+    - name: Deploy ceph.key to all nodes
+      ansible.posix.authorized_key:
+        user: root
+        state: present
+        key: "{{ lookup('file', 'fetch/ceph.pub') }}"
+
+    # - name: Deploy ceph.conf and admin keyring to all nodes
+    #   copy:
+    #     src: fetch/{{ item }}
+    #     dest: /etc/ceph/
+    #     owner: root
+    #     group: root
+    #     mode: 0600
+    #   loop:
+    #    #- ceph.conf
+    #    - ceph.client.admin.keyring

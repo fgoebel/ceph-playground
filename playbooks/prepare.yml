@@ -1,0 +1,44 @@
+---
+
+- name: Do something with ceph nodes
+  hosts: ceph_nodes
+  remote_user: adu
+  become_method: sudo
+  become: true
+  vars:
+    ceph_repo_url: "https://download.ceph.com"
+    ceph_gpg_url: "https://download.ceph.com/keys/release.gpg"
+    ceph_release: "pacific"
+  tasks:
+    # create apt repo file
+    - name: add ceph apt repo gpg key
+      ansible.builtin.apt_key:
+        url: "{{ ceph_gpg_url }}"
+        state: present
+
+    - name: Create ceph apt repo
+      copy:
+        dest: /etc/apt/sources.list.d/ceph.list
+        mode: 0644
+        owner: root
+        group: root
+        content: |
+          deb {{ ceph_repo_url }}/debian-{{ ceph_release }} focal main
+      register: ceph_repo
+
+    # update apt if last task was changed (not as handler because it is required right here)
+    - name: update apt caches
+      apt:
+        update_cache: True
+      when: ceph_repo is changed
+
+    - name: upgrade apt
+      apt:
+        upgrade: dist
+
+    - name: install cephadm and ceph-common tools
+      apt:
+        state: present
+        name:
+          - cephadm
+          - ceph-common

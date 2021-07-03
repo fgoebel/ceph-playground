@@ -1,3 +1,6 @@
 disks
 .vagrant
 *.vdi
+
+playbooks/fetch
+**/__pycache__

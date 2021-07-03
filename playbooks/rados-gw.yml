@@ -1,0 +1,47 @@
+---
+- name: configure rados gateway and dashboard access
+  hosts: ceph_bootstrap # foreman_ceph_poc
+  remote_user: adu
+  become_method: sudo
+  become: true
+  tasks:
+    - name: create rados gateway "foo"
+      shell:
+        cmd: ceph orch apply rgw foo && touch /etc/ceph/ansible-rgw
+        creates: /etc/ceph/ansible-rgw
+
+    - name: create radosgw user for dashboard
+      shell:
+        cmd: radosgw-admin user create --uid=foo-dashboard --display-name=foo-dashpboard --system && touch /etc/ceph/ansible-rgw-user
+        creates: /etc/ceph/ansible-rgw-user
+
+    - name: get radosgw user infos
+      command: radosgw-admin user info --uid=foo-dashboard
+      register: radosgw_user
+
+    - name: debug
+      set_fact:
+        rgw_keys: "{{ radosgw_nice['keys'] | first}}"
+      vars:
+        radosgw_nice: "{{ radosgw_user.stdout | from_json }}"
+
+    - name: debug
+      debug:
+        var: rgw_keys
+
+    - name: save required keys
+      copy:
+        content: "{{ rgw_keys[item] }}"
+        dest: /root/{{ item }}
+      loop:
+        - access_key
+        - secret_key
+      register: save_rgw_keys
+
+    - name: set rados gateway credentials
+      command:
+        cmd: "{{ item }}"
+      loop:
+        - ceph dashboard set-rgw-api-access-key -i /root/access_key
+        - ceph dashboard set-rgw-api-secret-key -i /root/secret_key
+      when: save_rgw_keys is changed

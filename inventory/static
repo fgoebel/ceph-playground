@@ -5,3 +5,10 @@ ceph2
 
 [ceph_bootstrap]
 ceph0
+
+# [cephfs_clients]
+# donnager
+
+[ceph_iscsi]
+ceph0
+ceph1

@@ -1,0 +1,20 @@
+- name: Cleaning osds and reboot
+  hosts: ceph_nodes
+  remote_user: adu
+  become_method: sudo
+  become: true
+  tasks:
+    - name: remove status files for ansible
+      file:
+        dest: "/etc/ceph"
+        state: absent
+
+    - name: wipe dev/sdb and dev/sdc
+      command: wipefs -fa "{{ item }}"
+      loop:
+        - /dev/sdc
+        - /dev/sdd
+        - /dev/sde
+
+    - name: reboot systems and wait to be ready again
+      ansible.builtin.reboot:
