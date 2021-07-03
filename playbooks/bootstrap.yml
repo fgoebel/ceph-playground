@@ -16,7 +16,12 @@
         creates: /etc/ceph/ceph.conf
       register: bootstrap
 
-      # add _admin label to bootstrap node
+    - name: add _admin label.. which .. should be present already?
+      vars:
+        file: /etc/ceph/ansible_label_this_host
+      shell:
+        cmd: ceph orch host label add ceph0 _admin && touch "{{ file }}"
+        creates: "{{ file }}"
 
     - name: show bootstrap command
       debug:
