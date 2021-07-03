@@ -15,6 +15,11 @@
         upgrade: dist
       when: upgrade | bool
 
+    - name: install required packages
+      apt:
+        name:
+          - chrony
+
     - name: import role for podman
       import_role:
         name: podman
