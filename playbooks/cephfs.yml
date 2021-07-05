@@ -2,7 +2,6 @@
 
 - name: Fetch required configuration and keys
   hosts: ceph_bootstrap # foreman_ceph_poc
-  remote_user: adu
   become_method: sudo
   become: true
   tasks:
@@ -31,7 +30,8 @@
     - name: save config for later use
       copy:
         content: |
-           {{ ceph_config.stdout }}
+          # created with ansible
+          {{ ceph_config.stdout }}
 
         dest: /root/ceph-minimal.conf
 
@@ -57,7 +57,6 @@
 
 - name: configure cephfs on client nodes
   hosts: cephfs_clients
-  remote_user: adu
   become_method: sudo
   become: true
   tasks:

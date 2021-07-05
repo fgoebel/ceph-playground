@@ -1,0 +1,52 @@
+---
+
+- name: Fetch required configuration and keys
+  hosts: ceph_bootstrap # foreman_ceph_poc
+  become_method: sudo
+  become: true
+  tasks:
+    - name: create minimal ceph config
+      command: ceph config generate-minimal-conf
+      register: ceph_config
+
+    - debug:
+        var: ceph_config.stdout
+
+    - name: save config for later use
+      copy:
+        content: |
+          # created with ansible
+          {{ ceph_config.stdout }}
+
+        dest: /root/ceph-minimal.conf
+
+- name: configure cephfs on client nodes
+  hosts: ceph_nodes
+  become_method: sudo
+  become: true
+  tasks:
+    - name: create /etc/ceph
+      file:
+        path: /etc/ceph
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: "Deploy ceph-minimal.conf on clients"
+      copy:
+        src: fetch/ceph-minimal.conf
+        dest: /etc/ceph/ceph.conf
+        owner: root
+        group: root
+        mode: 0600
+
+    - name: "Deploy keyring on clients"
+      copy:
+        src: fetch/ceph.client.{{ username }}.keyring
+        dest: /etc/ceph/
+        owner: root
+        group: root
+        mode: 0600
+      vars:
+        username: admin

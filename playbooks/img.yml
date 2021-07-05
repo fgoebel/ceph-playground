@@ -1,0 +1,18 @@
+---
+
+# fetch images...
+
+- name: fetch images... to directly distribute them.. docker pull limits
+  hosts: ceph_bootstrap # foreman_ceph_poc
+  remote_user: adu
+  become_method: sudo
+  become: true
+  tasks:
+    - name: fetch images...
+      fetch:
+        dest: fetch/
+        src: /root/{{ item }}
+        flat: True
+      loop:
+        - prom-alertmanager.img
+        - ceph.img

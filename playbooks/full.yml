@@ -17,6 +17,10 @@
 - name: import cephfs
   import_playbook: cephfs.yml
 
+# rbd
+- name: Create and initialize pool for rdb
+  import_playbook: rbd.yml
+
 # ceph-iscsi
 - name: import playbook for ceph iscsi
   import_playbook: ceph-iscsi.yml

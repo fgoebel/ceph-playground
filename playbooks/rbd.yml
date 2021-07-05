@@ -1,0 +1,31 @@
+---
+#https://docs.ceph.com/en/latest/rbd/
+
+- name: bootstrap first node
+  hosts: ceph_bootstrap
+  remote_user: adu
+  become_method: sudo
+  become: true
+  tasks:
+    - name: create pool for rbd
+      vars:
+        file: /etc/ceph/ansible-create-rbd-pool
+      shell:
+        cmd: ceph osd pool create rbd && touch {{ file }}
+        creates: "{{ file }}"
+
+# Create replica2 pool
+# root@ceph0:~# ceph osd pool create rbd
+# pool 'rbd' created
+# root@ceph0:~# ceph osd pool set rbd size 2
+# set pool 8 size to 2
+# root@ceph0:~# ceph osd pool set rbd min_size 1
+# set pool 8 min_size to 1
+# root@ceph0:~#
+
+    - name: init pool for rbd
+      vars:
+        file: /etc/ceph/ansible-init-rbd-pool
+      shell:
+        cmd: rbd pool init rbd && touch {{ file }}
+        creates: "{{ file }}"

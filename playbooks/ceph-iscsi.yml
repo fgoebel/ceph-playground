@@ -1,30 +1,9 @@
 ---
 
 
-- name: bootstrap first node
-  hosts: ceph_bootstrap
-  remote_user: adu
-  become_method: sudo
-  become: true
-  tasks:
-    - name: create pool for rbd
-      vars:
-        file: /etc/ceph/ansible-create-rbd-pool
-      shell:
-        cmd: ceph osd pool create rbd && touch {{ file }}
-        creates: "{{ file }}"
-
-    - name: init pool for rbd
-      vars:
-        file: /etc/ceph/ansible-init-rbd-pool
-      shell:
-        cmd: rbd pool init rbd && touch {{ file }}
-        creates: "{{ file }}"
-
 # https://docs.ceph.com/en/pacific/rbd/iscsi-target-cli/
 - name: bootstrap first node
   hosts: ceph_iscsi # foreman_ceph_poc
-  remote_user: adu
   become_method: sudo
   become: true
   tasks:

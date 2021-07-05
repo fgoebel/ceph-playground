@@ -1,14 +1,5 @@
-[ceph_nodes]
-ceph0
-ceph1
-ceph2
-
-[ceph_bootstrap]
-ceph0
+# You could add your cephfs_clients here
+# see playbook `cephfs.yml` for more information
 
 # [cephfs_clients]
-# donnager
-
-[ceph_iscsi]
-ceph0
-ceph1
+# localhost ansible_connection=local
