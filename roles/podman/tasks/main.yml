@@ -17,7 +17,6 @@
       deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/ /
   register: podman_repo
 
-
 - name: update apt caches
   apt:
     update_cache: True
@@ -25,11 +24,5 @@
 
 - name: install podman
   apt:
-    name: 
+    name:
       - podman
-
-
-# $ sudo sh -c "echo 'deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list"
-# $ wget -nv https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_${VERSION_ID}/Release.key -O- | sudo apt-key add -so
-# $ sudo apt-get update -qq
-# $ sudo apt-get -qq --yes install podman
