@@ -20,7 +20,7 @@
       vars:
         file: /etc/ceph/ansible_label_this_host
       shell:
-        cmd: ceph orch host label add ceph0 _admin && touch "{{ file }}"
+        cmd: ceph orch host label add {{ ansible_facts.hostname }} _admin && touch "{{ file }}"
         creates: "{{ file }}"
 
     - name: show bootstrap command
