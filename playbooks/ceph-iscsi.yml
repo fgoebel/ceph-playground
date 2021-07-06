@@ -2,131 +2,39 @@
 
 
 # https://docs.ceph.com/en/pacific/rbd/iscsi-target-cli/
-- name: bootstrap first node
-  hosts: ceph_iscsi # foreman_ceph_poc
+- name: configure iscsi gateway
+  hosts: ceph_bootstrap
   become_method: sudo
   become: true
+  vars:
+    iscsi_service_file: /root/iscsi-gw.yml
+    iscsi_service_content:
+      service_type: iscsi
+      service_id: iscsi
+      placement:
+        hosts:
+          - ceph1
+          - ceph2
+      spec:
+        # This could be misleading... maybe this clears it https://github.com/ceph/ceph/pull/40245#issuecomment-803149481
+        # so it should be possible to just "also" store the config for this service inside the rbd pool
+        pool: rbd  # RADOS pool where ceph-iscsi config data is stored.
+        trusted_ip_list: "192.168.178.210,192.168.178.211,192.168.178.213"
+        api_port: '5000' # optional
+        api_user: 'admin' # optional
+        api_password: 'admin' # optional
+        api_secure: false # optional
+        # ssl_cert: | # optional
+
+        # ssl_key: | # optional
   tasks:
-    # - name: install dependencies
-    #   apt:
-    #     name:
-    #       - libnl-3-200 ## unklar?
-    #       - python3-cryptography
-    #       - python3-flask
-    #       - python3-openssl
-    #       - python3-requests
-
-#     # started to implement this here to fix this bug, but suddenly it was okay???
-#     # https://bugs.launchpad.net/ubuntu/+source/ceph-iscsi/+bug/1883112
-#     # what i had planned to do: https://docs.ceph.com/en/pacific/rbd/iscsi-target-cli-manual-install/
-#     - name: configure git to use proxy
-#       community.general.git_config:
-#         name: http.proxy
-#         value: http://proxy.ww932.my-it-solutions.net:8080
-#         scope: global
-# ## ceph iscsi
-#     - name: Clone upstream ceph-iscsi repository
-#       ansible.builtin.git:
-#         dest: /root/ceph-iscsi
-#         repo: https://github.com/ceph/ceph-iscsi.git
-#       register: ceph_iscsi_repo
-
-    # - name: install ceph-iscsi from repository
-    #   command:
-    #     cmd: python3 setup.py install --install-scripts=/usr/bin
-    #     chdir: /root/ceph-iscsi
-    #   when: ceph_iscsi_repo is changed
-
-    # - name: copy service file in place
-    #   copy:
-    #     remote_src: true
-    #     src: "/root/ceph-iscsi/usr/lib/systemd/system/{{ item }}"
-    #     dest: /lib/systemd/system/
-    #     owner: root
-    #     group: root
-    #     mode: 0644
-    #   loop:
-    #     - rbd-target-gw.service
-    #     - rbd-target-api.service
-    #   register: install_rdb_services
-
-# ## rtslib-fb
-#     - name: Clone upstream rtslib-fb repository
-#       ansible.builtin.git:
-#         dest: /root/rtslib-fb
-#         repo: https://github.com/open-iscsi/rtslib-fb.git
-
-#     - name: install rtslib-fb from repository
-#       command:
-#         cmd: python3 setup.py install
-#         chdir: /root/rtslib-fb
-#       when: false
-
-    # - name: Daemon reload services
-    #   when: install_rdb_services is defined and install_rdb_services is changed
-    #   systemd:
-    #     daemon_reload: True
-
-
-    - name: install required packages
-      apt:
-        update_cache: true
-        cache_valid_time: 3600
-        name:
-          - targetcli-fb
-          - python3-rtslib-fb
-          - ceph-iscsi
-          - tcmu-runner
-
-    - name: create iscsi-gateway.cfg
+    - name: Create iscsi service statement
       copy:
-        dest: /etc/ceph/iscsi-gateway.cfg
-        content: |
-          [config]
-          # Name of the Ceph storage cluster. A suitable Ceph configuration file allowing
-          # access to the Ceph storage cluster from the gateway node is required, if not
-          # colocated on an OSD node.
-          cluster_name = ceph
+        dest: "{{ iscsi_service_file }}"
+        content: "{{ iscsi_service_content | to_yaml }}"
+      register: iscsi_service_file_created
 
-          # Pool name where internal `gateway.conf` object is stored
-          pool = rbd
-
-          # CephX client name
-          # cluster_client_name = client.<rados_id>  # E.g.: client.admin
-          # gateway_conf = gateway.conf
-
-          # Place a copy of the ceph cluster's admin keyring in the gateway's /etc/ceph
-          # drectory and reference the filename here
-          gateway_keyring = ceph.client.admin.keyring
-
-          # API settings.
-          # The API supports a number of options that allow you to tailor it to your
-          # local environment. If you want to run the API under https, you will need to
-          # create cert/key files that are compatible for each iSCSI gateway node, that is
-          # not locked to a specific node. SSL cert and key files *must* be called
-          # 'iscsi-gateway.crt' and 'iscsi-gateway.key' and placed in the '/etc/ceph/' directory
-          # on *each* gateway node. With the SSL files in place, you can use 'api_secure = true'
-          # to switch to https mode.
-
-          # To support the api, the bear minimum settings are;
-          api_secure = false
-
-          # Additional API configuration options are as follows (defaults shown);
-          # api_user = admin
-          # api_password = admin
-          # api_port = 5000
-          # trusted_ip_list = IP,IP
-
-          # Refer to the ceph-iscsi-config/settings module for more options
-
-    - name: enable and start services
-      systemd:
-        name: "{{ item }}"
-        state: started
-        enabled: True
-        masked: false
-      loop:
-        - rbd-target-gw
-        - rbd-target-api
-
-# have a look for notes/ceph-iscsi.md
+    - name: Apply service statement if changed
+      command:
+        cmd: ceph orch apply -i {{ iscsi_service_file }}
+      when: iscsi_service_file_created is changed
