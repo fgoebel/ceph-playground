@@ -18,7 +18,20 @@
           # created with ansible
           {{ ceph_config.stdout }}
 
+
         dest: /root/ceph-minimal.conf
+
+    - name: fetch ceph-minimal.conf
+      fetch:
+        src: "{{ item }}"
+        dest: fetch/
+        flat: True # no subfolder per hostname please
+        fail_on_missing: false
+      loop:
+        - /root/ceph-minimal.conf
+        - /root/ceph.client.bar.keyring
+        - /etc/ceph/ceph.client.admin.keyring
+        - /etc/ceph/ceph.conf
 
 - name: configure cephfs on client nodes
   hosts: ceph_nodes
