@@ -58,3 +58,8 @@
       file:
         path: /etc/ceph/apply-osd
         state: touch
+
+    - name: wait for 30 sec to create the filesystem
+      pause:
+        seconds: 30
+      when: cephfs_fs_create is changed
