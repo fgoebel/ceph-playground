@@ -19,7 +19,7 @@
         # This could be misleading... maybe this clears it https://github.com/ceph/ceph/pull/40245#issuecomment-803149481
         # so it should be possible to just "also" store the config for this service inside the rbd pool
         pool: rbd  # RADOS pool where ceph-iscsi config data is stored.
-        trusted_ip_list: "192.168.178.210,192.168.178.211,192.168.178.213"
+        trusted_ip_list: "192.168.178.210,192.168.178.211,192.168.178.212"
         api_port: '5000' # optional
         api_user: 'admin' # optional
         api_password: 'admin' # optional
