@@ -26,3 +26,18 @@
   apt:
     name:
       - podman
+
+- name: configure podman registries.conf
+  copy:
+    content: |
+      # This file is managed by ansible ;-D
+      unqualified-search-registries = ["docker.io", "quay.io"]
+
+      [[registry]]
+      location = "docker.io"
+      prefix = "docker.io"
+
+      [[registry.mirror]]
+      location = "docker.fgdo.de:5000"
+      insecure = true
+    dest: /etc/containers/registries.conf
