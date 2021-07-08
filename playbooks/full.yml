@@ -13,6 +13,9 @@
 - name: import rados-gw
   import_playbook: rados-gw.yml
 
+- name: import rgw-haproxy
+  import_playbook: rgw-haproxy.yml
+
 # create cephfs bar
 - name: import cephfs
   import_playbook: cephfs.yml
@@ -24,3 +27,4 @@
 # ceph-iscsi
 - name: import playbook for ceph iscsi
   import_playbook: ceph-iscsi.yml
+  when: false # disable this here for the moment..
