@@ -58,3 +58,10 @@
       file:
         path: /etc/ceph/apply-osd
         state: touch
+
+## TODO: Fix Prometheus template
+
+# ceph config-key set mgr/cephadm/services/prometheus/prometheus.yml -i $PWD/prometheus.yml.j2
+# output: set mgr/cephadm/services/prometheus/prometheus.yml
+# ceph orch reconfig prometheus
+# output: Scheduled to reconfig prometheus.ceph00 on host 'ceph00'
