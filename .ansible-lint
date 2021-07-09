@@ -1,4 +1,7 @@
 ---
 # .ansible-lint
+exclude_paths:
+  - .cache
+  - .ansible-lint # because the ansible-vscode extension will interpret this file as playbook
 skip_list:  #'warn_list' or 'skip_list' to silence them completely
   - role-name  # Role name {} does not match ``^[a-z][a-z0-9_]+$`` pattern

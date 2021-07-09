@@ -5,12 +5,9 @@
   become_method: sudo
   become: true
   tasks:
-    - name: create minimal ceph config
+    - name: create minimal ceph config # noqa no-changed-when
       command: ceph config generate-minimal-conf
       register: ceph_config
-
-    - debug:
-        var: ceph_config.stdout
 
     - name: save config for later use
       copy:
@@ -20,6 +17,7 @@
 
 
         dest: /root/ceph-minimal.conf
+        mode: 0644
 
     - name: fetch ceph-minimal.conf
       fetch:

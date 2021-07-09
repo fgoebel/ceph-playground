@@ -32,9 +32,10 @@
       copy:
         dest: "{{ iscsi_service_file }}"
         content: "{{ iscsi_service_content | to_yaml }}"
+        mode: 0644
       register: iscsi_service_file_created
 
-    - name: Apply service statement if changed
+    - name: Apply service statement if changed # noqa no-handler
       command:
         cmd: ceph orch apply -i {{ iscsi_service_file }}
       when: iscsi_service_file_created is changed

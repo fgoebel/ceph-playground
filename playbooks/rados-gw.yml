@@ -15,13 +15,13 @@
         cmd: radosgw-admin user create --uid=foo-dashboard --display-name=foo-dashpboard --system && touch /etc/ceph/ansible-rgw-user
         creates: /etc/ceph/ansible-rgw-user
 
-    - name: get radosgw user infos
+    - name: get radosgw user infos # noqa no-changed-when
       command: radosgw-admin user info --uid=foo-dashboard
       register: radosgw_user
 
     - name: debug
       set_fact:
-        rgw_keys: "{{ radosgw_nice['keys'] | first}}"
+        rgw_keys: "{{ radosgw_nice['keys'] | first }}"
       vars:
         radosgw_nice: "{{ radosgw_user.stdout | from_json }}"
 
@@ -33,12 +33,13 @@
       copy:
         content: "{{ rgw_keys[item] }}"
         dest: /root/{{ item }}
+        mode: 0644
       loop:
         - access_key
         - secret_key
       register: save_rgw_keys
 
-    - name: set rados gateway credentials
+    - name: set rados gateway credentials # noqa no-handler
       command:
         cmd: "{{ item }}"
       loop:

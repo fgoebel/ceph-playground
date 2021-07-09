@@ -27,7 +27,7 @@
       register: ceph_repo
 
     # update apt if last task was changed (not as handler because it is required right here)
-    - name: update apt caches
+    - name: update apt caches # noqa no-handler
       apt:
         update_cache: True
       when: ceph_repo is changed

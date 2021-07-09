@@ -35,9 +35,10 @@
             #   -----END PRIVATE KEY-----
 
         dest: /root/ha-proxy-service.yml
+        mode: 0644
       register: save_service_config
 
-    - name: set rados gateway credentials
+    - name: set rados gateway credentials # noqa no-handler
       command:
         cmd: ceph orch apply -i /root/ha-proxy-service.yml
       when: save_service_config is changed

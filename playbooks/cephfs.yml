@@ -15,17 +15,14 @@
         creates: "{{ file }}"
       register: cephfs_fs_create
 
-    - name: wait for 30 sec to create the filesystem
+    - name: wait for 30 sec to create the filesystem # noqa no-handler
       pause:
         seconds: 30
       when: cephfs_fs_create is changed
 
-    - name: create minimal ceph config
+    - name: create minimal ceph config # noqa no-changed-when
       command: ceph config generate-minimal-conf
       register: ceph_config
-
-    - debug:
-        var: ceph_config.stdout
 
     - name: save config for later use
       copy:
@@ -34,6 +31,9 @@
           {{ ceph_config.stdout }}
 
         dest: /root/ceph-minimal.conf
+        mode: 0644
+        owner: root
+        group: root
 
     - name: create user "{{ username }}" for cephfs "{{ filesystem }}" with full read/write access
       vars:

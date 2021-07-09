@@ -1,3 +1,5 @@
+---
+
 - name: bootstrap first node
   hosts: ceph_bootstrap
   remote_user: adu
@@ -61,7 +63,7 @@
         path: /etc/ceph/apply-osd
         state: touch
 
-    - name: wait for 30 sec to create the filesystem
+    - name: wait for 30 sec to create the filesystem # noqa no-handler
       pause:
-        seconds: 30
-      when: cephfs_fs_create is changed
+        seconds: 60
+      when: add_all_storage is changed # this is not a handler because i want it to run at exactly this position

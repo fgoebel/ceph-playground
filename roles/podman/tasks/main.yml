@@ -6,18 +6,21 @@
 
 - name: install apt key
   apt_key:
-    url: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_{{VERSION_ID}}/Release.key
+    url: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_{{ VERSION_ID }}/Release.key
   vars:
     VERSION_ID: '20.04'
 
 - name: create repository files
   copy:
     dest: /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+    mode: 0644
+    owner: root
+    group: root
     content: |
       deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_20.04/ /
   register: podman_repo
 
-- name: update apt caches
+- name: update apt caches # noqa no-handler
   apt:
     update_cache: True
   when: podman_repo is changed
@@ -41,3 +44,6 @@
       location = "docker.fgdo.de:5000"
       insecure = true
     dest: /etc/containers/registries.conf
+    mode: 0644
+    owner: root
+    group: root

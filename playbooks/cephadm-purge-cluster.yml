@@ -46,7 +46,7 @@
           You must have /etc/ceph/ceph.client.admin.keyring on this node ({{ inventory_hostname }})
       when: not admin_keyring_stat.stat.exists | bool
 
-    - name: pause cephadm
+    - name: pause cephadm # noqa no-changed-when
       command: "cephadm shell -- ceph orch pause"
 
 - hosts: ceph_nodes # foreman_ceph_poc
@@ -54,7 +54,8 @@
   gather_facts: false
   remote_user: adu
   tasks:
-    - import_role:
+    - name: import role ceph-defaults
+      import_role:
         name: ceph-defaults
 
     - name: purge ceph cluster
