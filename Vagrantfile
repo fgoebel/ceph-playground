@@ -12,6 +12,12 @@ public_net_bridge_interface_name = "enp5s0"
 # My Internet routers dhcp-range ends at 200.. so it "should" be safe to use these addresses here
 public_net_base_ip_address = "192.168.178.21" # num-1 of host will be appended! leave last digit out here!!
 
+ceph_mon_network = "192.168.178.0/24"
+ceph_cluster_network = "192.168.40.0/24"
+ceph_dashboard_user = "admin"
+ceph_dashboard_password = "test1234"
+
+
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
@@ -48,7 +54,13 @@ Vagrant.configure("2") do |config|
         ansible.groups = {
           "ceph_nodes" => ["ceph[0:" + (num-1).to_s + "]"],
           "ceph_bootstrap" => ["ceph0"],
-          "ceph_iscsi" => ["ceph0", "ceph1"]
+          "ceph_iscsi" => ["ceph0", "ceph1"],
+          "all:vars" => {
+            "ceph_mon_network" => ceph_mon_network,
+            "ceph_cluster_network" => ceph_cluster_network,
+            "ceph_dashboard_user" => ceph_dashboard_user,
+            "ceph_dashboard_password" => ceph_dashboard_password
+          }
         }
       end
 

@@ -11,6 +11,9 @@
         cmd: >
           cephadm bootstrap
           --mon-ip {{ mon_ip }}
+          --cluster-network {{ ceph_cluster_network }}
+          --initial-dashboard-password {{ ceph_dashboard_password }}
+          --initial-dashboard-user {{ ceph_dashboard_user }}
           --dashboard-password-noupdate
         creates: /etc/ceph/ceph.conf
       register: bootstrap
