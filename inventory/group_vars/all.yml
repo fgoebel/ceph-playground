@@ -1,0 +1,8 @@
+---
+
+ansible_ceph_status_folder: /etc/ceph/ansible-status/
+# ceph_mon_network: 192.168.178.0/24
+# ceph_cluster_network: 192.168.40.0/24
+
+# ceph_dashboard_user: admin
+# ceph_dashboard_password: test1234
