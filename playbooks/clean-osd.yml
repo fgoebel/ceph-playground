@@ -9,12 +9,16 @@
         dest: "/etc/ceph"
         state: absent
 
-    - name: wipe dev/sdb and dev/sdc
-      command: wipefs -fa "{{ item }}"
-      loop:
-        - /dev/sdc
-        - /dev/sdd
-        - /dev/sde
+    - name: wipe osd devices # noqa no-changed-when
+      vars:
+        keep_devices:
+          - sda
+          - sdb
+      command: wipefs --force --all "/dev/{{ item }}"
+      # this is a complicated way to say:
+      # please wipe all devices like sda /vda but not sda and sdb
+      # get all device names | search for valid names | select strings only | remove devices too keep | create list from this
+      loop: "{{ ansible_facts.devices.keys() | map('regex_search','^s[a-z]{2}$') | select('string') | difference(keep_devices) | list }}"
 
     - name: reboot systems and wait to be ready again
       ansible.builtin.reboot:
