@@ -41,33 +41,35 @@
   import_playbook: ceph-keys.yml
 
 - name: add other hosts to cluster
-  hosts: ceph_bootstrap
+  hosts: ceph_nodes:!ceph_bootstrap # Alle nodes ausser bootstrap
   remote_user: adu
   become_method: sudo
   become: true
   tasks:
     - name: add other hosts to cluster
-      command:
-        cmd: "{{ item }}"
-        creates: /etc/ceph/other-hosts
-      loop:
-        - ceph orch host add ceph1 192.168.178.211 _admin
-        - ceph orch host add ceph2 192.168.178.212 _admin
+      vars:
+        file: "{{ ansible_ceph_status_folder }}/bootstrap_host_{{ inventory_hostname }}"
+        # get the first ip-address of host which is located in ceph_mon_network
+        mon_ip: "{{ ansible_facts.all_ipv4_addresses | ansible.netcommon.ipaddr(ceph_mon_network) | first }}"
+      shell:
+        cmd: ceph orch host add {{ inventory_hostname }} {{ mon_ip }} _admin && touch {{ file }}
+        creates: "{{ file }}"
+      delegate_to: ceph0
 
-    - name: create other-host -status file
-      file:
-        path: /etc/ceph/other-hosts
-        state: touch
+- name: bootstrap first node
+  hosts: ceph_bootstrap
+  remote_user: adu
+  become_method: sudo
+  become: true
+  tasks:
 
     - name: add all available storage to ceph
-      command:
-        cmd: ceph orch apply osd --all-available-devices
-        creates: /etc/ceph/apply-osd
-
-    - name: create other-host -status file
-      file:
-        path: /etc/ceph/apply-osd
-        state: touch
+      vars:
+        file: "{{ ansible_ceph_status_folder }}/osd-apply-all-available-devices"
+      shell:
+        cmd: ceph orch apply osd --all-available-devices && touch {{ file }}
+        creates: "{{ file }}"
+      register: add_all_storage
 
     - name: wait for 30 sec to create the filesystem # noqa no-handler
       pause:
