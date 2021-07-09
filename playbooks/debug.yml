@@ -1,0 +1,10 @@
+- name: bootstrap first node
+  hosts: ceph_bootstrap
+  remote_user: adu
+  become_method: sudo
+  become: true
+  tasks:
+    - name: debug
+      debug:
+        var: ansible_facts
+
