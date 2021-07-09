@@ -25,6 +25,5 @@
   import_playbook: rbd.yml
 
 # ceph-iscsi
-- name: import playbook for ceph iscsi
-  import_playbook: ceph-iscsi.yml
-  when: false # disable this here for the moment..
+# - name: import playbook for ceph iscsi
+#   import_playbook: ceph-iscsi.yml
