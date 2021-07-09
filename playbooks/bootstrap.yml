@@ -8,6 +8,12 @@
   vars:
     mon_ip: "{{ ansible_facts.all_ipv4_addresses | ansible.netcommon.ipaddr(ceph_mon_network) | first }}"
   tasks:
+    - name: create ansible status file folder # noqa
+      file:
+        state: directory
+        path: "{{ ansible_ceph_status_folder }}"
+        mode: 0644
+
     - name: Run bootstrap command on one node
       command:
         cmd: >
@@ -22,7 +28,7 @@
 
     - name: add _admin label.. which .. should be present already?
       vars:
-        file: /etc/ceph/ansible_label_this_host
+        file: "{{ ansible_ceph_status_folder }}/label_bootstrap_host"
       shell:
         cmd: ceph orch host label add {{ ansible_facts.hostname }} _admin && touch "{{ file }}"
         creates: "{{ file }}"

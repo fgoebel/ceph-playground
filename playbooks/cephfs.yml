@@ -8,7 +8,7 @@
 
     - name: Create cephfs "bar"
       vars:
-        file: /etc/ceph/ansible-cephfs-bar-created
+        file: "{{ ansible_ceph_status_folder }}/cephfs-bar-created"
         filesystem: bar
       shell:
         cmd: ceph fs volume create {{ filesystem }} && touch {{ file }}

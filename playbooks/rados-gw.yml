@@ -11,9 +11,11 @@
         creates: /etc/ceph/ansible-rgw
 
     - name: create radosgw user for dashboard
+      vars:
+        file: "{{ ansible_ceph_status_folder }}/rgw-user"
       shell:
-        cmd: radosgw-admin user create --uid=foo-dashboard --display-name=foo-dashpboard --system && touch /etc/ceph/ansible-rgw-user
-        creates: /etc/ceph/ansible-rgw-user
+        cmd: radosgw-admin user create --uid=foo-dashboard --display-name=foo-dashpboard --system && touch {{ file }}
+        creates: "{{ file }}"
 
     - name: get radosgw user infos # noqa no-changed-when
       command: radosgw-admin user info --uid=foo-dashboard

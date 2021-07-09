@@ -9,7 +9,7 @@
   tasks:
     - name: create pool for rbd
       vars:
-        file: /etc/ceph/ansible-create-rbd-pool
+        file: "{{ ansible_ceph_status_folder }}/rbd-pool-created"
       shell:
         cmd: ceph osd pool create rbd && touch {{ file }}
         creates: "{{ file }}"
@@ -25,7 +25,7 @@
 
     - name: init pool for rbd
       vars:
-        file: /etc/ceph/ansible-init-rbd-pool
+        file: "{{ ansible_ceph_status_folder }}/rbd-pool-initiated"
       shell:
         cmd: rbd pool init rbd && touch {{ file }}
         creates: "{{ file }}"
