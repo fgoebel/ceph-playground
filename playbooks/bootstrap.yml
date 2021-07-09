@@ -3,15 +3,14 @@
   remote_user: adu
   become_method: sudo
   become: true
+  vars:
+    mon_ip: "{{ ansible_facts.all_ipv4_addresses | ansible.netcommon.ipaddr(ceph_mon_network) | first }}"
   tasks:
     - name: Run bootstrap command on one node
       command:
         cmd: >
           cephadm bootstrap
-          --mon-ip 192.168.178.210
-          --cluster-network 192.168.40.0/24
-          --initial-dashboard-password test1234
-          --initial-dashboard-user admin
+          --mon-ip {{ mon_ip }}
           --dashboard-password-noupdate
         creates: /etc/ceph/ceph.conf
       register: bootstrap
