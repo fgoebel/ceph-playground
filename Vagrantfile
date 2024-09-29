@@ -4,7 +4,7 @@
 #######
 # variables
 #######
-num = 3
+num = 4
 public_net_bridge_interface_name = "enp5s0"
 
 # Just left out the last digit off the address and Yes, this is dirty, but i am new to ruby..
@@ -33,7 +33,7 @@ Vagrant.configure("2") do |config|
 
       config.vm.network "public_network", ip: "192.168.178.21#{i}", bridge: "#{public_net_bridge_interface_name}"
       #config.vm.network "private_network", ip: "192.168.30.1#{i}"
-      config.vm.network "private_network", ip: "192.168.40.1#{i}"
+      config.vm.network "private_network", ip: "192.168.40.1#{i}", virtualbox__intnet: true
 
       # provider specific Configuration
       config.vm.provider "virtualbox" do |vb|
